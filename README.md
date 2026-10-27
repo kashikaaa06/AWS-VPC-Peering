@@ -1,4 +1,4 @@
-# AWS Multi-VPC Peering 
+# AWS-VPC Peering 
 
 ## Project Overview
 This project demonstrates a secure, multi-VPC architecture on AWS. The objective was to establish a private network connection between two isolated workloads (VPC A and VPC B) using AWS VPC Peering. This ensures that backend application servers remain completely private and unexposed to the public internet, while still allowing administrative access via a secure Bastion host.
