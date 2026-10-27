@@ -10,89 +10,111 @@ This project demonstrates a secure, multi-VPC architecture on AWS. The objective
 ---
 
 ## Architecture Diagram
-
-```text
 [ Admin Laptop ]
-      │
-      │ SSH (Port 22)
-      ▼
+│
+│ SSH (Port 22)
+▼
 [ Internet Gateway ]
-      │
-      ▼
+│
+▼
 ┌──────────────────────────────┐
-│ VPC A (10.10.0.0/16)         │
-│                              │
+│ VPC A (10.10.0.0/16) │
+│ │
 │ ┌──────────────────────────┐ │
-│ │ Public Subnet A          │ │
-│ │ [ Bastion: 10.10.1.10 ]  │─┼──────┐
-│ └──────────────────────────┘ │      │
-│           │ SSH              │      │
-│           ▼                  │      │
-│ ┌──────────────────────────┐ │      │
-│ │ Private Subnet A         │ │      │
-│ │ [ App-A: 10.10.2.10 ]    │ │      │
-│ └──────────────────────────┘ │      │
-└──────────────────────────────┘      │
-                                      │ VPC Peering
-                                      │ (pcx-12345)
-┌──────────────────────────────┐      │
-│ VPC B (10.20.0.0/16)         │      │
-│                              │      │
-│ ┌──────────────────────────┐ │      │
-│ │ Private Subnet B         │ │      │
-│ │ [ App-B: 10.20.1.10 ]    │◄┼──────┘
+│ │ Public Subnet A │ │
+│ │ [ Bastion: 10.10.1.10 ] │─┼──────┐
+│ └──────────────────────────┘ │ │
+│ │ SSH │ │
+│ ▼ │ │
+│ ┌──────────────────────────┐ │ │
+│ │ Private Subnet A │ │ │
+│ │ [ App-A: 10.10.2.10 ] │ │ │
+│ └──────────────────────────┘ │ │
+└──────────────────────────────┘ │
+│ VPC Peering
+│ (pcx-12345)
+┌──────────────────────────────┐ │
+│ VPC B (10.20.0.0/16) │ │
+│ │ │
+│ ┌──────────────────────────┐ │ │
+│ │ Private Subnet B │ │ │
+│ │ [ App-B: 10.20.1.10 ] │◄┼──────┘
 │ └──────────────────────────┘ │
 └──────────────────────────────┘
-AWS Services & Technologies Used
-Service	Purpose
-Amazon VPC	Isolated network environments with non-overlapping CIDRs.
-Amazon EC2	Amazon Linux 2023 instances (t3.micro) for compute.
-VPC Peering	Private, direct connection between VPCs.
-Internet Gateway	Provides internet access strictly to the public subnet.
-Bastion Host	A secure jump box for administrative SSH access.
-Route Tables	Granular traffic routing across subnets.
-Security Groups	Stateful firewalls enforcing a Zero Trust model.
-Network Topology & IP Allocation
-Resource	VPC	Subnet Type	Private IPv4	Public IPv4
-ewb-bastion	VPC A (10.10.0.0/16)	Public	10.10.1.10	Enabled
-ewb-app-a	VPC A (10.10.0.0/16)	Private	10.10.2.10	Disabled
-ewb-app-b	VPC B (10.20.0.0/16)	Private	10.20.1.10	Disabled
-Routing & Security Configuration
-1. VPC Peering Connection
-Peering ID: ewb-a-b-peer
 
-Status: Active
+text
 
-Routing: Private route tables in both VPCs route cross-VPC traffic via the pcx- target.
+---
 
-2. Security Groups (Zero Trust Model)
-ewb-sg-bastion: Allows SSH (Port 22) only from the Admin's public IP.
+## AWS Services & Technologies Used
 
-ewb-sg-app-a: Allows SSH only from the Bastion (10.10.1.10), and ICMP (Ping) only from App-B (10.20.1.10).
+| Service | Purpose |
+| :--- | :--- |
+| **Amazon VPC** | Isolated network environments with non-overlapping CIDRs. |
+| **Amazon EC2** | Amazon Linux 2023 instances (`t3.micro`) for compute. |
+| **VPC Peering** | Private, direct connection between VPCs. |
+| **Internet Gateway** | Provides internet access strictly to the public subnet. |
+| **Bastion Host** | A secure jump box for administrative SSH access. |
+| **Route Tables** | Granular traffic routing across subnets. |
+| **Security Groups** | Stateful firewalls enforcing a Zero Trust model. |
 
-ewb-sg-app-b: Allows SSH only from the Bastion (10.10.1.10), and ICMP (Ping) only from App-A (10.10.2.10).
+---
 
-Verification & Testing Evidence
+## Network Topology & IP Allocation
+
+| Resource | VPC | Subnet Type | Private IPv4 | Public IPv4 |
+| :--- | :--- | :--- | :--- | :--- |
+| **ewb-bastion** | VPC A (`10.10.0.0/16`) | Public | `10.10.1.10` | Enabled |
+| **ewb-app-a** | VPC A (`10.10.0.0/16`) | Private | `10.10.2.10` | Disabled |
+| **ewb-app-b** | VPC B (`10.20.0.0/16`) | Private | `10.20.1.10` | Disabled |
+
+---
+
+## Routing & Security Configuration
+
+### 1. VPC Peering Connection
+* **Peering ID:** `ewb-a-b-peer`
+* **Status:** `Active`
+* **Routing:** Private route tables in both VPCs route cross-VPC traffic via the `pcx-` target.
+
+### 2. Security Groups (Zero Trust Model)
+* **`ewb-sg-bastion`:** Allows SSH (Port 22) **only** from the Admin's public IP.
+* **`ewb-sg-app-a`:** Allows SSH **only** from the Bastion (`10.10.1.10`), and ICMP (Ping) **only** from App-B (`10.20.1.10`).
+* **`ewb-sg-app-b`:** Allows SSH **only** from the Bastion (`10.10.1.10`), and ICMP (Ping) **only** from App-A (`10.10.2.10`).
+
+---
+
+## Verification & Testing Evidence
 To prove the architecture works, SSH key forwarding was used to jump from the Bastion into the private instances, and ICMP tests were executed.
 
-Test 1: Forward Path (App-A to App-B)
+### Test 1: Forward Path (App-A to App-B)
 Successfully verified private communication over the peering connection (0% packet loss).
-https://images/09-ping-success.png
 
-Test 2: Controlled Failure (Firewall Validation)
+![Ping Success](images/09-ping-success.png)
+
+### Test 2: Controlled Failure (Firewall Validation)
 To prove the Security Groups enforce rules, the ICMP rule on App-B was temporarily removed. The ping failed, proving the firewall is active.
-https://images/10-controlled-failure.png
 
-Test 3: Reverse Path (App-B to App-A)
+![Controlled Failure](images/10-controlled-failure.png)
+
+### Test 3: Reverse Path (App-B to App-A)
 Successfully verified bi-directional communication across the peering connection.
-https://images/11-reverse-ping.png
 
-Repository Structure
-text
+![Reverse Ping](images/11-reverse-ping.png)
+
+---
+
+## Repository Structure
 AWS-VPC-Peering/
-├── README.md                 <-- Project overview and architecture
-├── images/                   <-- All verification screenshots
-├── configs/                  <-- Route table & Security group configs
-└── Project_Report.md         <-- Detailed assignment report
-Author
-Kashika Ghosh
+├── README.md <-- Project overview and architecture
+├── images/ <-- All verification screenshots
+├── configs/ <-- Route table & Security group configs
+└── Project_Report.md <-- Detailed assignment report
+
+text
+
+---
+
+## Author
+**Kashika Ghosh**
+[GitHub Profile](https://github.com/kashikaaa06)
