@@ -1,14 +1,13 @@
-<div align="center">
-  <h1>AWS Multi-VPC Peering & Secure Bastion Architecture</h1>
-  <p><i>A secure, production-grade multi-VPC network built on AWS</i></p>
-</div>
+# AWS Multi-VPC Peering & Secure Bastion Architecture
+
+*A secure, production-grade multi-VPC network built on AWS*
 
 ---
 
 ## Project Overview
 This project demonstrates a secure, multi-VPC architecture on AWS. The objective was to establish a private connection between two isolated workloads (VPC A and VPC B) using **AWS VPC Peering**, ensuring that backend application servers remain completely private, secure, and unexposed to the public internet.
 
-<br>
+---
 
 ## Architecture Diagram
 
@@ -44,7 +43,6 @@ This project demonstrates a secure, multi-VPC architecture on AWS. The objective
 │ │ [ App-B: 10.20.1.10 ]    │◄┼──────┘
 │ └──────────────────────────┘ │
 └──────────────────────────────┘
-
 AWS Services & Technologies Used
 Service	Purpose
 Amazon VPC	Isolated network environments with non-overlapping CIDRs.
@@ -79,16 +77,16 @@ To prove the architecture works, SSH key forwarding was used to jump from the Ba
 
 Test 1: Forward Path (App-A to App-B)
 Successfully verified private communication over the peering connection (0% packet loss).
+https://images/09-ping-success.png
 
-<div align="center"> <img src="images/09-ping-success.png" width="70%" style="border-radius: 5px;"/> </div>
 Test 2: Controlled Failure (Firewall Validation)
 To prove the Security Groups enforce rules, the ICMP rule on App-B was temporarily removed. The ping failed, proving the firewall is active.
+https://images/10-controlled-failure.png
 
-<div align="center"> <img src="images/10-controlled-failure.png" width="70%" style="border-radius: 5px;"/> </div>
 Test 3: Reverse Path (App-B to App-A)
 Successfully verified bi-directional communication across the peering connection.
+https://images/11-reverse-ping.png
 
-<div align="center"> <img src="images/11-reverse-ping.png" width="70%" style="border-radius: 5px;"/> </div>
 Repository Structure
 text
 AWS-VPC-Peering/
@@ -96,4 +94,5 @@ AWS-VPC-Peering/
 ├── images/                   <-- All verification screenshots
 ├── configs/                  <-- Route table & Security group configs
 └── Project_Report.md         <-- Detailed assignment report
-<div align="center"> <h3>Author: Kashika Ghosh</h3> <p> <a href="https://github.com/kashikaaa06">GitHub Profile</a> </p> </div> ```
+Author
+Kashika Ghosh
